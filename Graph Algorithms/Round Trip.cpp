@@ -54,74 +54,51 @@ template <typename T> void Print(const vector<T> &v) {for (int i = 0; i + 1 < v.
  
 const int mxN = 1e5;
 vector <int> g[mxN + 1];
-vector <bool> vis(mxN + 1 , 0); 
 vector <int> color(mxN + 1 , 0);
-vector <int> ans , temp;
-vector <int> path(mxN + 1 , 0);
-int cycle = 0; 
-int last = 0;
-void makeset(int n) {
-    for(int i = 0 ; i <= n ; i++)
-        color[i] = 0 ;
-}
-void dfs(int u , int par = -1) {
-    color[u] = 2 ;
+vector <int> path(mxN + 1, -1);
+bool cycle = 0;
+int st = -1;
+void Dfs(int u, int par = -1) {
+    if (cycle) return;
+    if (color[u] == 2) return;
+    if (color[u] == 1) {
+        cycle = 1;
+        st = par;
+        path[u] = -1;
+        return;
+    } 
+    color[u] = 1;
     path[u] = par;
-    //temp.push_back(u);
-    for(int v : g[u]) {
+    for (int v : g[u]) {
         if (v == par) continue;
-        if(color[v] == 2) {
-            //temp.push_back(v); 
-            cycle++ ; // counting cycles...
-            //ans = temp;
-            last = u;
-        } else if(color[v] == 0) {
-            dfs(v , u) ;
-        }
+        Dfs(v , u);
     }
-    color[u] = 1 ;
+    color[u] = 2;
 }
 int main() {
     FasterIO
-    int n , m ; cin >> n >> m;
+    int n, m; cin >> n >> m;
     for (int i = 0; i < m; i++) {
-        int u , v;
-        cin >> u >> v;
+        int u , v; cin >> u >> v;
         g[u].push_back(v);
         g[v].push_back(u);
-    }    
-    /*
+    }
     for (int i = 1; i <= n; i++) {
-        cout << i << " : ";
-        for (int x : g[i]) {
-            cout << x << " , ";
-        }
-        cout << "\n";
+         Dfs(i);
+         if (cycle) break;
     }
-    */
-    makeset(n) ;
-    bool flag = 0 ;
-    for(int i = 1 ; i <= n ; i++) {
-        //makeset(n);
-        if (color[i] == 0) {
-            dfs(i);
-            if (cycle != 0) {
-                flag = 1;
-                while (last != -1) {
-                    ans.push_back(last);
-                    last = path[last];
-                }
-                break;
-            }
-        }
-    }
-    if (flag) {
-        cout << ans.size() + 1 << "\n";
-        //cout << flag << "\n";
-        cout << ans.back() << " ";
-        Print(ans);
-    } else {
+    if (cycle == 0) {
         cout << "IMPOSSIBLE\n";
+        return 0;
     }
+    vector <int> ans;
+    while (st != -1) {
+        //cout << st << " ";
+        ans.push_back(st);
+        st = path[st];
+    }
+    cout << ans.size() + 1 << "\n";
+    cout << ans.back() << " ";
+    Print(ans);
     return 0;
 }
